@@ -1,3 +1,10 @@
+# Links
+- https://svelte.dev/examples
+- https://svelte.dev/blog
+- https://svelte.dev/docs
+- https://svelte.dev/blog/the-easiest-way-to-get-started
+- https://sapper.svelte.dev/
+
 # Pre
 ## For Javascript
 ```js
@@ -797,6 +804,69 @@ const map = getMap();
 <svelte:window on:keydown={handleKeydown}/>
 ```
 
+- `<svelte:body>` | element allows you to listen for events that fire on `document.body`
+```html
+<svelte:body
+	on:mouseenter={handleMouseenter}
+	on:mouseleave={handleMouseleave}
+/>
+```
+
+- `<svelte:head>` | element allows you to insert elements inside the **head** of your document:
+```html
+<svelte:head>
+	<link rel="stylesheet" href="tutorial/dark-theme.css">
+</svelte:head>
+```
+
+- `<svelte:options>` | allows you to specify compiler options.
+ - `immutable={true}` — you never use mutable data, so the compiler can do simple referential equality checks to determine if values have changed
+ - `accessors={true}` — adds getters and setters for the component's props
+ - `namespace="..."` — the namespace where this component will be used, most commonly "svg"
+ - `tag="..."` — the name to use when compiling this component as a custom element
+```html
+<svelte:options immutable/>
+```
+
+## Module context
+### Sharing code
+> Very occasionally, you'll need to run some code outside of an individual component instance. For example, you can play all five of these audio players simultaneously; it would be better if playing one stopped all the others.
+- Use **context="module"**
+```js
+<script context="module">
+	let current;
+</script>
+```
+### Exports
+> Anything exported from a context="module" script block becomes an export from the module itself. If we export a stopAll function from
+```js
+<script context="module">
+	const elements = new Set();
+
+	export function stopAll() {
+		elements.forEach(element => {
+			element.pause();
+		});
+	}
+</script>
+
+<script>
+	import AudioPlayer, { stopAll } from './AudioPlayer.svelte';
+</script>
+```
+```html
+<button on:click={stopAll}>
+	stop all audio
+</button>
+```
+
+## Debugging
+> One approach is to use console.log(...) inside your markup. If you want to pause execution, though, you can use the {@debug ...} tag with a comma-separated list of values you want to inspect:
+```html
+{@debug user}
+
+<h1>Hello {user.firstname}!</h1>
+```
 
 # OBS
 - Accessibility (shortened to a11y) isn't always easy to get right, but Svelte will help by warning you if you write inaccessible markup.
@@ -828,6 +898,8 @@ function addNumber() {
 - Auto-subscription only works with store variables that are declared (or imported) at the top-level scope of a component.
 - It's possible to derive a store from multiple inputs, and to explicitly set a value instead of returning it (which is useful for deriving values asynchronously). Consult the  for more information.
 - **Named slots** can also have props; use the let directive on an element with a slot="..." attribute, instead of on the component itself.
+- In server-side rendering (SSR) mode, contents of <svelte:head> are returned separately from the rest of your HTML.
+- **Module context EXPORTS** You can't have a default export, because the component is the default export.
 
 ```js
 
